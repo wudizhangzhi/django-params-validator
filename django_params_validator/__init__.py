@@ -71,8 +71,8 @@ class ParamValidator(object):
                     raise ParamsErrorException(
                         '%s 应该是 iterable, 收到的是 %s' % (self.param_name, type(param).__name__))
                 copyed = deepcopy(self)
+                copyed.many = False
                 for p in param:
-                    copyed.many = False
                     copyed.check_type(p)
             else:
                 # 转换布尔值
@@ -167,7 +167,7 @@ class Params(object):
                 if param is None:
                     if not validator.optional:
                         raise ParamsErrorException('缺少参数 %s' % param_name)
-                    if validator.default:
+                    if validator.default is not None:
                         kwargs[param_name] = validator.default
                         continue
                     if validator.optional:
