@@ -8,12 +8,24 @@ from copy import deepcopy
 import datetime
 from rest_framework.exceptions import APIException
 from rest_framework import status
+from django.conf import settings
+
+if hasattr(settings, 'API_DEFAULT_MSG'):
+    DEFAULT_MSG = settings.API_DEFAULT_MSG
+else:
+    DEFAULT_MSG = '请求参数错误'
 
 
 class ParamsErrorException(APIException):
     status_code = status.HTTP_200_OK
     # status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = '请求参数错误'
+    default_detail = DEFAULT_MSG
+
+    def __init__(self, detail=None, code=None):
+        # 如果不是测试模式，只显示默认信息
+        if not settings.DEBUG:
+            detail = self.default_detail
+        super(ParamsErrorException, self).__init__(detail, code)
 
 
 class ParamValidator(object):
