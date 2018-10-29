@@ -176,14 +176,14 @@ class Params(object):
                     param = request_data.getlist(param_name, [])
                 else:
                     param = request_data.get(param_name, None)
-                if param is None:
-                    if not validator.optional:
-                        raise ParamsErrorException('缺少参数 %s' % param_name)
+                if param is None or param == '':  # 如果参数值是空
                     if validator.default is not None:
                         kwargs[param_name] = validator.default
                         continue
                     if validator.optional:
                         continue
+                    else:
+                        raise ParamsErrorException('缺少参数 %s' % param_name)
                 param = validator.check(param)
                 # 没有办法修改querydict。先保存到kwargs
                 kwargs[param_name] = param
