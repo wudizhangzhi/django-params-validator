@@ -12,13 +12,14 @@ class TestRequest(object):
         pass
 
 
-@Params(blank_param=int, )
-def test_func(request, *args, **kwargs):
-    pass
+class TEST(object):
+    @Params(blank_param=int, )
+    def test_func(self, request, *args, **kwargs):
+        pass
 
 
 def main():
-    pass
+    request = TestRequest()
 
 
 if __name__ == '':
