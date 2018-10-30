@@ -106,10 +106,10 @@ class ParamValidator(object):
             return param
 
     def check_val(self, param):
-        if self.param_name == int:
-            val_or_length = param
-        else:
+        if self.param_type in (self.ITERABLE_TYPES, str):
             val_or_length = len(param)
+        else:
+            val_or_length = param
         # 判断取值范围
         if self.lt and not val_or_length < self.lt:
             raise ParamsErrorException('%s 应该小于 %s' % (self.param_name, self.lt))
