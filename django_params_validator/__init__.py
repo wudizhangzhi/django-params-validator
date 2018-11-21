@@ -9,6 +9,7 @@ import datetime
 from rest_framework.exceptions import APIException
 from rest_framework import status
 from django.conf import settings
+from collections import Iterable
 
 if hasattr(settings, 'API_DEFAULT_MSG'):
     DEFAULT_MSG = settings.API_DEFAULT_MSG
@@ -79,7 +80,7 @@ class ParamValidator(object):
         # 判断不能为空
         if self.param_type:
             if self.many:
-                if not isinstance(param, self.ITERABLE_TYPES):
+                if not isinstance(param, Iterable):
                     raise ParamsErrorException(
                         '%s 应该是 iterable, 收到的是 %s' % (self.param_name, type(param).__name__))
                 copyed = deepcopy(self)
@@ -106,7 +107,7 @@ class ParamValidator(object):
             return param
 
     def check_val(self, param):
-        if self.param_type in (self.ITERABLE_TYPES, str):
+        if isinstance(param, Iterable):
             val_or_length = len(param)
         else:
             val_or_length = param
@@ -152,7 +153,7 @@ class Params(object):
             else:
                 p_name = k
                 arg = self.param_type_str
-                if type(v) in ParamValidator.ITERABLE_TYPES:  # determine whether param is iterable
+                if isinstance(v, Iterable):  # determine whether param is iterable
                     arg = self.choices_str
             if p_name not in self._validators:
                 self._validators[p_name] = ParamValidator(p_name)
