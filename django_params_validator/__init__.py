@@ -173,9 +173,11 @@ class Params(object):
                 request = args[0]  # request fn is a method, first_arg is 'self'
 
             request_method = request._request.method
-            request_data = request.data
+
             if request_method == 'GET':
                 request_data = request.GET
+            else:
+                request_data = request.data
 
             for arg_name, validator in self._validators.items():
                 param_name = validator.param_name
