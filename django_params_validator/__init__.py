@@ -135,8 +135,6 @@ class Params(object):
     param__many=True, 是list
     param=iterable, 是选项
     """
-    LIST = list  # 防止被占用
-
     split_str = '__'
     choices_str = 'choices'
     param_type_str = 'param_type'
