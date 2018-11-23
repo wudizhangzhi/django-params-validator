@@ -278,6 +278,7 @@ class ParamDecoratorTest(unittest.TestCase):
         #     # valid
         #     self.do_fake_request(my_request, get={'my_str': 'GOOD'})
         #
+
     def test_optional(self):
         """ Test that we can make a param optional """
 
@@ -341,6 +342,7 @@ class ParamDecoratorTest(unittest.TestCase):
         #     self.do_fake_request(my_request, method_='POST', get={'my_int': 100})
         #     self.do_fake_request(my_request, method_='POST', post={'my_int': 100})
         #
+
     def test_many(self):
         """ Test that __many=True will let yoy pass CSV or JSON Array params """
 
@@ -361,6 +363,24 @@ class ParamDecoratorTest(unittest.TestCase):
 
         # POST - multiple vals
         self.do_fake_request(my_request, method_='POST', post={'user_ids': [87, 97, 100]})
+
+    def test_date(self):
+        """ Test date format"""
+
+        @Params(my_date=Params.DATETIME_STR, my_date__format='%Y-%m-%d')
+        def my_request(request, *args, **kwargs):
+            my_date = kwargs.get('my_date')
+            self.assertEqual(my_date, '2018-10-10')
+            return Response({'status': 'success'})
+
+        # single val should work
+        # self.do_fake_request(my_request, get={'user_ids': 100})
+        #
+        # # multiple vals should work
+        # self.do_fake_request(my_request, get={'user_ids': '98,99,100'})
+
+        # POST - single val
+        self.do_fake_request(my_request, method_='POST', post={'my_date': '2018-10-10'}, expected_status=True)
 
 
 if __name__ == '__main__':

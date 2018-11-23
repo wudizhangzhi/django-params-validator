@@ -80,7 +80,7 @@ class ParamValidator(object):
         # 判断不能为空
         if self.param_type:
             if self.many:
-                if not isinstance(param, Iterable):
+                if not Params.is_iterable(param):
                     raise ParamsErrorException(
                         '%s 应该是 iterable, 收到的是 %s' % (self.param_name, type(param).__name__))
                 copyed = deepcopy(self)
@@ -107,7 +107,7 @@ class ParamValidator(object):
             return param
 
     def check_val(self, param):
-        if isinstance(param, Iterable):
+        if Params.is_iterable(param):
             val_or_length = len(param)
         else:
             val_or_length = param
@@ -151,7 +151,7 @@ class Params(object):
             else:
                 p_name = k
                 arg = self.param_type_str
-                if isinstance(v, Iterable):  # determine whether param is iterable
+                if self.is_iterable(v):  # determine whether param is iterable
                     arg = self.choices_str
             if p_name not in self._validators:
                 self._validators[p_name] = ParamValidator(p_name)
@@ -160,6 +160,13 @@ class Params(object):
             # 如果是选项
             if arg == self.choices_str:
                 setattr(validator, self.param_type_str, type(v[0]))
+
+    @staticmethod
+    def is_iterable(v):
+        if isinstance(v, Iterable) and v != Params.DATETIME_STR:
+            return True
+        else:
+            return False
 
     def __call__(self, func):
         @wraps(func)
