@@ -17,6 +17,13 @@ else:
     DEFAULT_MSG = '请求参数错误'
 
 
+def convert_bool(x):
+    if str(x).lower() in ['0', 'false']:
+        return False
+    else:
+        return True
+
+
 class ParamsErrorException(APIException):
     status_code = status.HTTP_200_OK
     # status_code = status.HTTP_400_BAD_REQUEST
@@ -89,8 +96,8 @@ class ParamValidator(object):
                     copyed.check_type(p)
             else:
                 # 转换布尔值
-                if self.param_type == bool and param in [1, '1', 0, '0']:
-                    param = int(param) == 1
+                if self.param_type == bool and str(param).lower() in ['0', '1', 'true', 'false']:
+                    param = convert_bool(param)
                 # 转换digit
                 if self.param_type == int and isinstance(param, str) and param.isdigit():
                     param = int(param)
