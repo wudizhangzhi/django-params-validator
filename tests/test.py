@@ -163,15 +163,17 @@ class ParamDecoratorTest(unittest.TestCase):
     def test_bool(self):
         """ Test that we can require a 'bool' param """
 
-        @Params(my_bool=bool)
+        @Params(my_bool=bool, my_bool__default=True)
         def my_request(request, *args, **kwargs):
             my_bool = kwargs.get('my_bool')
+            print('output: %r' % my_bool)
             if my_bool is not None:
                 self.assertTrue(isinstance(my_bool, bool))
             return Response({'result': my_bool})
 
         # check things that should be true
-        for v in 1, '1', 'true':
+        for v in 1, '1', 'true', None:
+            print('intput: %r' % v)
             self.assertTrue(self.do_fake_request(my_request, get={'my_bool': v})['result'])
 
         # things that should be false
