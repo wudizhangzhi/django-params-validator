@@ -92,8 +92,7 @@ class ParamValidator(object):
                         '%s 应该是 iterable, 收到的是 %s' % (self.param_name, type(param).__name__))
                 copyed = deepcopy(self)
                 copyed.many = False
-                for p in param:
-                    copyed.check_type(p)
+                param = [copyed.check_type(p) for p in param]
             else:
                 # 转换布尔值
                 if self.param_type == bool and str(param).lower() in ['0', '1', 'true', 'false']:
@@ -148,6 +147,8 @@ class Params(object):
     # 日期时间类型
     DATETIME_STR = 'datetime_str'
 
+    NULL_VALUE_LIST = [None, '', []]
+
     def __init__(self, **params):
         self._params = params
         self._validators = {}
@@ -197,11 +198,11 @@ class Params(object):
                     param = request_data.getlist(param_name, [])
                 else:
                     param = request_data.get(param_name, None)
-                if param is None or param == '':  # 如果参数值是空
-                    if validator.default is not None:
+                if param in self.NULL_VALUE_LIST:  # 如果参数值是空
+                    if validator.default is not None:  # 如果有默认值
                         kwargs[param_name] = validator.default
                         continue
-                    if validator.optional:
+                    if validator.optional:  # 如果不必填
                         continue
                     else:
                         raise ParamsErrorException('缺少参数 %s' % param_name)
