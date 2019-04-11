@@ -64,13 +64,16 @@ class ParamDecoratorTest(unittest.TestCase):
 
     def do_fake_request(self, request_fn, expected_status=True, method_='GET', get={}, post={}):
         """ Perform a fake request to a request fn, check that we got the status code we expected """
+        class ListDict(dict):
+            def getlist(self, key, default=None):
+                return [self[key]] if self[key] else  default
 
         class Req(object):
             method = 'GET'
 
         class FakeR(object):
             data = {}
-            GET = {}
+            GET = ListDict() 
             POST = {}
             META = {
                 'REQUEST_METHOD': None
@@ -78,7 +81,7 @@ class ParamDecoratorTest(unittest.TestCase):
             _request = Req()
 
         fake_request = FakeR()
-        fake_request.GET = get
+        fake_request.GET.update(get)
         fake_request.data = post
         fake_request._request.method = method_
 
@@ -378,7 +381,17 @@ class ParamDecoratorTest(unittest.TestCase):
         self.do_fake_request(my_request, method_='POST', post={'my_date': '2018-10-10'}, expected_status=True)
 
         self.do_fake_request(my_request, method_='POST', post={}, expected_status=True)
+    
+    def test_choices_set_null(self):
+        @Params(test_choices=('days', 'weeks', 'months'), test_choices__many=True)
+        def my_request(request, *args, **kwargs):
+            test_choices = kwargs.get('test_choices')
+            self.assertEqual(test_choices, [])
+            return Response({'status': 'success'})
+        
+        self.do_fake_request(my_request, method_='GET', get={'test_choices': ''}, expected_status=True)
 
 
 if __name__ == '__main__':
     unittest.main()
+    # ParamDecoratorTest().test_choices_set_null()

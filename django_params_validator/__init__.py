@@ -84,6 +84,7 @@ class ParamValidator(object):
             raise ParamsErrorException("错误的日期格式: %s, 应该是: %s" % (time_str, self.format))
 
     def check_type(self, param):
+        print('check_type: %r' % param)
         # 判断不能为空
         if self.param_type:
             if self.many:
@@ -103,15 +104,16 @@ class ParamValidator(object):
 
                 # 如果是选项
                 if self.choices:
-                    # 如果是空
-                    if param in Params.NULL_VALUE_LIST and not self.optional:
-                        raise ParamsErrorException('%s 只能在 %r 内取值, 而接受到的是: %s' % (self.param_name, self.choices, param))
-                    elif param not in self.choices:
-                        raise ParamsErrorException('%s 只能在 %r 内取值, 而接受到的是: %s' % (self.param_name, self.choices, param))
+                    if param not in self.choices:
+                        if param in Params.NULL_VALUE_LIST and self.optional:
+                            pass
+                        else:
+                            raise ParamsErrorException(
+                                '%s 只能在 %r 内取值, 而接受到的是: %s' % (self.param_name, self.choices, param))
                 # 如果是日期格式字符串
                 if self.param_type == Params.DATETIME_STR:
                     self.validate_datetime(param)
-                elif self.param_type and not isinstance(param, self.param_type):
+                elif self.param_type and not self.choices and not isinstance(param, self.param_type):
                     raise ParamsErrorException(
                         '%s 应该是 %s类型, 收到的是 %s' % (self.param_name, self.param_type.__name__, type(param).__name__))
             return param
@@ -183,6 +185,7 @@ class Params(object):
     def __call__(self, func):
         @wraps(func)
         def wrapper(first_arg, *args, **kwargs):
+            # import ipdb;ipdb.set_trace()
             # 获取参数
             if len(args) == 0:
                 request = first_arg  # request function is a top-level function
@@ -205,7 +208,7 @@ class Params(object):
                         param = null_list
                 else:
                     param = request_data.get(param_name, None)
-                if param in self.NULL_VALUE_LIST:  # 如果参数值是空
+                if not validator.choices and param in self.NULL_VALUE_LIST:  # 如果参数值是空
                     if validator.default is not None:  # 如果有默认值
                         kwargs[param_name] = validator.default
                         continue
