@@ -102,8 +102,12 @@ class ParamValidator(object):
                     param = int(param)
 
                 # 如果是选项
-                if self.choices and param not in self.choices:
-                    raise ParamsErrorException('%s 只能在 %r 内取值, 而接受到的是: %s' % (self.param_name, self.choices, param))
+                if self.choices:
+                    # 如果是空
+                    if param in Params.NULL_VALUE_LIST and not self.optional:
+                        raise ParamsErrorException('%s 只能在 %r 内取值, 而接受到的是: %s' % (self.param_name, self.choices, param))
+                    elif param not in self.choices:
+                        raise ParamsErrorException('%s 只能在 %r 内取值, 而接受到的是: %s' % (self.param_name, self.choices, param))
                 # 如果是日期格式字符串
                 if self.param_type == Params.DATETIME_STR:
                     self.validate_datetime(param)
@@ -194,8 +198,11 @@ class Params(object):
 
             for arg_name, validator in self._validators.items():
                 param_name = validator.param_name
+                null_list = []
                 if validator.many and request_method == 'GET':
-                    param = request_data.getlist(param_name, [])
+                    param = request_data.getlist(param_name, null_list)
+                    if param in self.NULL_VALUE_LIST:
+                        param = null_list
                 else:
                     param = request_data.get(param_name, None)
                 if param in self.NULL_VALUE_LIST:  # 如果参数值是空
