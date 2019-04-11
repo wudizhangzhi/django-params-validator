@@ -84,7 +84,6 @@ class ParamValidator(object):
             raise ParamsErrorException("错误的日期格式: %s, 应该是: %s" % (time_str, self.format))
 
     def check_type(self, param):
-        print('check_type: %r' % param)
         # 判断不能为空
         if self.param_type:
             if self.many:
@@ -204,8 +203,8 @@ class Params(object):
                 null_list = []
                 if validator.many and request_method == 'GET':
                     param = request_data.getlist(param_name, null_list)
-                    if param in self.NULL_VALUE_LIST:
-                        param = null_list
+                    # 过滤
+                    param = [i for i in param if i not in self.NULL_VALUE_LIST]
                 else:
                     param = request_data.get(param_name, None)
                 if not validator.choices and param in self.NULL_VALUE_LIST:  # 如果参数值是空

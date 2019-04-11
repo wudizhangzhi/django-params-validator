@@ -64,16 +64,17 @@ class ParamDecoratorTest(unittest.TestCase):
 
     def do_fake_request(self, request_fn, expected_status=True, method_='GET', get={}, post={}):
         """ Perform a fake request to a request fn, check that we got the status code we expected """
+
         class ListDict(dict):
             def getlist(self, key, default=None):
-                return [self[key]] if self[key] else  default
+                return [self[key]] if self[key] else default
 
         class Req(object):
             method = 'GET'
 
         class FakeR(object):
             data = {}
-            GET = ListDict() 
+            GET = ListDict()
             POST = {}
             META = {
                 'REQUEST_METHOD': None
@@ -169,14 +170,12 @@ class ParamDecoratorTest(unittest.TestCase):
         @Params(my_bool=bool, my_bool__default=True)
         def my_request(request, *args, **kwargs):
             my_bool = kwargs.get('my_bool')
-            print('output: %r' % my_bool)
             if my_bool is not None:
                 self.assertTrue(isinstance(my_bool, bool))
             return Response({'result': my_bool})
 
         # check things that should be true
         for v in 1, '1', 'true', None:
-            print('intput: %r' % v)
             self.assertTrue(self.do_fake_request(my_request, get={'my_bool': v})['result'])
 
         # things that should be false
@@ -381,14 +380,14 @@ class ParamDecoratorTest(unittest.TestCase):
         self.do_fake_request(my_request, method_='POST', post={'my_date': '2018-10-10'}, expected_status=True)
 
         self.do_fake_request(my_request, method_='POST', post={}, expected_status=True)
-    
+
     def test_choices_set_null(self):
         @Params(test_choices=('days', 'weeks', 'months'), test_choices__many=True)
         def my_request(request, *args, **kwargs):
             test_choices = kwargs.get('test_choices')
             self.assertEqual(test_choices, [])
             return Response({'status': 'success'})
-        
+
         self.do_fake_request(my_request, method_='GET', get={'test_choices': ''}, expected_status=True)
 
 
