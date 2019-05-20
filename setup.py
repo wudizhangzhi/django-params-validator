@@ -19,6 +19,7 @@ setup(
     version='1.1.8',
     description='Decorator for Django REST Framework for validate params',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/wudizhangzhi/django-params-validator',
     # Author details
     author='wudizhangzhi',
@@ -41,5 +42,6 @@ setup(
     keywords='rest,django,api,params,parameters,djangorestframework,decorator',
 
     packages=find_packages(exclude=['tests']),
-    install_requires=['django', 'djangorestframework']
+    install_requires=['django',
+                      'djangorestframework']
 )
