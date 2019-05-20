@@ -16,7 +16,7 @@ with open(path.join(root_path, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='django-params-validator',
-    version='1.1.8',
+    version='1.1.9',
     description='Decorator for Django REST Framework for validate params',
     long_description=long_description,
     long_description_content_type='text/markdown',

@@ -98,8 +98,11 @@ class ParamValidator(object):
                 if self.param_type == bool and str(param).lower() in ['0', '1', 'true', 'false']:
                     param = convert_bool(param)
                 # 转换digit
-                if self.param_type == int and isinstance(param, str) and param.isdigit():
-                    param = int(param)
+                if self.param_type in [int, float] and isinstance(param, str):
+                    try:
+                        param = self.param_type(param)
+                    except:
+                        pass
 
                 # 如果是选项
                 if self.choices:

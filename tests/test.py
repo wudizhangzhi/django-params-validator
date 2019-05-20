@@ -147,6 +147,8 @@ class ParamDecoratorTest(unittest.TestCase):
         # try with wrong type
         self.do_fake_request(my_request, expected_status=False, get={'my_float': "not an float"})
 
+        self.do_fake_request(my_request, expected_status=True, get={'my_float': "100.0"})
+
     def test_str(self):
         """ Test that we can require a 'str' param """
 
