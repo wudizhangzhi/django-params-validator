@@ -390,6 +390,15 @@ class ParamDecoratorTest(unittest.TestCase):
 
         self.do_fake_request(my_request, method_='GET', get={'test_choices': ''}, expected_status=True)
 
+    def test_choices_set_default(self):
+        @Params(test_choices=('days', 'weeks', 'months'), test_choices__default='weeks')
+        def my_request(request, *args, **kwargs):
+            test_choices = kwargs.get('test_choices')
+            self.assertEqual(test_choices, 'weeks')
+            return Response({'status': 'success'})
+
+        self.do_fake_request(my_request, method_='GET', expected_status=True)
+
 
 if __name__ == '__main__':
     unittest.main()

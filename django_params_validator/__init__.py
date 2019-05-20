@@ -207,7 +207,8 @@ class Params(object):
                     param = [i for i in param if i not in self.NULL_VALUE_LIST]
                 else:
                     param = request_data.get(param_name, None)
-                if not validator.choices and param in self.NULL_VALUE_LIST:  # 如果参数值是空
+                kwargs[param_name] = param
+                if param in self.NULL_VALUE_LIST:  # 如果参数值是空
                     if validator.default is not None:  # 如果有默认值
                         kwargs[param_name] = validator.default
                         continue
