@@ -149,6 +149,14 @@ class ParamDecoratorTest(unittest.TestCase):
 
         self.do_fake_request(my_request, expected_status=True, get={'my_float': "100.0"})
 
+        @Params(my_float=float)
+        def my_request2(request, *args, **kwargs):
+            my_float = kwargs.get('my_float')
+            self.assertEqual(my_float, None)
+            return Response({'status': 'success'})
+
+        self.do_fake_request(my_request2, expected_status=True, get={'my_float': ""})
+
     def test_str(self):
         """ Test that we can require a 'str' param """
 

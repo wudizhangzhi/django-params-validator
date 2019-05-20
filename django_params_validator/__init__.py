@@ -98,7 +98,7 @@ class ParamValidator(object):
                 if self.param_type == bool and str(param).lower() in ['0', '1', 'true', 'false']:
                     param = convert_bool(param)
                 # 转换digit
-                if self.param_type in [int, float] and isinstance(param, str):
+                if self.param_type in [int, float] and isinstance(param, str) and param not in Params.NULL_VALUE_LIST:
                     try:
                         param = self.param_type(param)
                     except:
@@ -147,7 +147,16 @@ class Params(object):
     自动判断参数范围 大于小于等于，选项 
     如果参数类型是bool, 自动将['1', 1]转化为 True, ['0', 0]转化为False
     param__many=True, 是list
-    param=iterable, 是选项
+    
+    optional=False:
+        raise 
+    optional=True:
+        many=True:
+            return []
+        many=False
+            return None
+    
+    
     """
     split_str = '__'
     choices_str = 'choices'
@@ -210,16 +219,32 @@ class Params(object):
                     param = [i for i in param if i not in self.NULL_VALUE_LIST]
                 else:
                     param = request_data.get(param_name, None)
-                kwargs[param_name] = param
-                if param in self.NULL_VALUE_LIST:  # 如果参数值是空
-                    if validator.default is not None:  # 如果有默认值
-                        kwargs[param_name] = validator.default
-                        continue
-                    if validator.optional:  # 如果不必填
-                        continue
+
+                need_check = True
+                if param in self.NULL_VALUE_LIST:
+                    if validator.default is not None:
+                        param = validator.default
+                    elif validator.optional:
+                        if validator.many:
+                            param = []
+                        else:
+                            param = None
+                        need_check = False
                     else:
                         raise ParamsErrorException('缺少参数 %s' % param_name)
-                param = validator.check(param)
+
+                # if param not in self.NULL_VALUE_LIST:
+                #     kwargs[param_name] = param
+                # if param in self.NULL_VALUE_LIST:  # 如果参数值是空
+                #     if validator.default is not None:  # 如果有默认值
+                #         kwargs[param_name] = validator.default
+                #         continue
+                #     if validator.optional:  # 如果不必填
+                #         continue
+                #     else:
+                #         raise ParamsErrorException('缺少参数 %s' % param_name)
+                if need_check:
+                    param = validator.check(param)
                 # 没有办法修改querydict。先保存到kwargs
                 kwargs[param_name] = param
             return func(first_arg, request, *args, **kwargs)
